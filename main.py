@@ -38,6 +38,13 @@ def main():
     with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(ENTRY)
     os.chmod(path, 0o644)
+    # Verify what was written: read it back and compare byte for byte,
+    # so a partial write or a stray newline fails loudly instead of
+    # shipping a wrong entry to the gate.
+    with open(path, "rb") as f:
+        written = f.read()
+    assert written == ENTRY.encode("utf-8"), "entry.txt differs from ENTRY"
+    assert (os.stat(path).st_mode & 0o777) == 0o644, "entry.txt must be 0644"
 
 
 if __name__ == "__main__":
